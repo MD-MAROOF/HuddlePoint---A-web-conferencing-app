@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "This is a web conferencing app",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/app.js",
+    "start": "node src/app.js",
+    "prod": "pm2 src/app.js"
+  },
+  "author": "Maroof",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^16.6.1",
+    "express": "^5.2.1",
+    "httpstatus": "^1.0.0",
+    "mongoose": "^9.1.5",
+    "nodemon": "^3.1.11",
+    "socket.io": "^4.8.3"
+  }
+}
