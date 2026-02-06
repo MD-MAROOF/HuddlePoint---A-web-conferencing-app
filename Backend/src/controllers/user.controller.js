@@ -1,32 +1,35 @@
 import httpStatus from "http-status";
-import { User } from "../models/user.model";
+import { User } from "../models/user.model.js";
 import bcrypt, { hash } from "bcrypt";
+import crypto from "crypto";
 
 
-
-const login = async(req,res)=>{
+const login = async (req, res) => {
 
     const { username, password } = req.body;
 
-    if(!username || !password)
-        return res.status(400).json({message: "Please Provide"});
+    if (!username || !password)
+        return res.status(400).json({ message: "Please Provide" });
 
-    try{
+    try {
 
-        const user = await User.find({ username });
+        const user = await User.findOne({ username });
 
-        if(!user){
-            return res.status(httpStatus.NOT_FOUND).json({message : "User not found"});
+        if (!user) {
+            return res.status(httpStatus.NOT_FOUND).json({ message: "User not found" });
         }
 
-        if(bcrypt.compare(password, user.password))
-        {
+        if (bcrypt.compare(password, user.password)) {
             //have to start writing the code from here 
-            
+            let token = crypto.randomBytes(20).toString("hex");
+
+            user.token = token;
+            await user.save();
+            return res.status(httpStatus.OK).json({ token: token });
         }
 
-    }catch (e){
-
+    } catch (e) {
+        return res.status(500).json({ message: `Something went wrong ${e}` });
     }
 }
 
@@ -41,7 +44,7 @@ const register = async (req, res) => {
             return res.status(httpStatus.FOUND).json({ message: "User already exists" });
         }
 
-        const hashedPassword = await bcrypt.hash(password,10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new User({
             name: name,
@@ -50,9 +53,11 @@ const register = async (req, res) => {
         });
 
         await newUser.save();
-        res.status(httpStatus.CREATED).json({message: " User registered "});
+        res.status(httpStatus.CREATED).json({ message: " User registered " });
     }
     catch (e) {
-        res.json({message: `Something went wrong ${e}`});
+        res.json({ message: `Something went wrong ${e}` });
     }
 }
+
+export { login, register };

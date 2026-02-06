@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import connectToSocket from "./controllers/socketmanager.js";
 import dotenv from "dotenv";
+import userRoutes from "./routes/users.routes.js"
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.set("port", PORT || 8000);
 app.use(cors());
 app.use(express.json({limit: "40kb"}));
 app.use(express.urlencoded({limit: "40kb", extended: true }));
+app.use("/api/v1/users", userRoutes);
 
 // app.get("/home", (req,res)=>{
 //     return res.json("hello");
