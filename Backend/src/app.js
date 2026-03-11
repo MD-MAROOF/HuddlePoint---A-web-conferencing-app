@@ -23,7 +23,6 @@ app.use(express.urlencoded({limit: "40kb", extended: true }));
 app.use("/api/v1/users", userRoutes);
 
 
-
 const start = async() => {
     if (!MONGO_URI) {
         throw new Error("MONGO_URI is not set");
