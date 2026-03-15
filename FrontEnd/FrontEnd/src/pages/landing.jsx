@@ -25,7 +25,7 @@ export default function landing() {
 
                     <p>Cover a distance by HuddlePoint</p>
                     <div role='button'>
-                        <Link to={"/home"}> Get Started</Link>
+                        <Link to={"/auth"}> Get Started</Link>
                     </div>
                 </div>
 
