@@ -1,4 +1,4 @@
-import * as React from 'react';
+
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,37 +12,52 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { AuthContext } from '../contexts/Authcontext';
+import React, { useContext } from 'react';
+import Snackbar from '@mui/material/Snackbar';
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
 
 export default function authentication() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
+
+  const [username, setUsername] = React.useState();
+  const [password, setPassword] = React.useState();
+  const [name, setName] = React.useState();
+  const [error, setError] = React.useState();
+  const [message, setMessage] = React.useState();
+  const [formState, setFormState] = React.useState(0);
+  const [open, setOpen] = React.useState(false);
+
+  const { handleRegister, handleLogin } = useContext(AuthContext);
+
+  let handleAuth = async () => {
+    try {
+      if (formState === 0) {
+
+      }
+
+      if (formState === 1) {
+        let result = await handleRegister(name, username, password);
+        console.log(result);
+        setUsername("");
+        setMessage(result);
+        setOpen(true);
+        setError("");
+        setFormState(0);
+        setPassword("");
+        
+      }
+    }
+    catch (err) {
+      const message = err?.response?.data?.message || err?.message || "Something went wrong";
+      setError(message);
+    }
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Grid container component="main" sx={{ height: '100vh' }}>
+      <Grid container component="main" sx={{ height: '100vh', flexDirection: 'row-reverse' }}>
         <CssBaseline />
         <Grid
           item
@@ -71,19 +86,48 @@ export default function authentication() {
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
               <LockOutlinedIcon />
             </Avatar>
-            <Typography component="h1" variant="h5">
-              Sign in
-            </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+
+            <div>
+              <Button variant={formState === 0 ? "contained" : ""} onClick={() => {
+                setFormState(0);
+              }}>
+                Sign In
+              </Button>
+
+              <Button variant={formState === 1 ? "contained" : ""} onClick={() => {
+                setFormState(1);
+              }}>
+                Sign Up
+              </Button>
+            </div>
+            <Box component="form" noValidate sx={{ mt: 1 }}>
+
+              {formState === 1 ?
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="username"
+                  label="Full Name"
+                  name="username"
+                  value = {name}
+
+                  autoFocus
+                  onChange={(e) => setName(e.target.value)}
+                /> : <></>
+
+              }
+
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
+                id="username"
+                label="Username"
+                name="username"
+               value = {username} 
                 autoFocus
+                onChange={(e) => setUsername(e.target.value)}
               />
               <TextField
                 margin="normal"
@@ -91,39 +135,33 @@ export default function authentication() {
                 fullWidth
                 name="password"
                 label="Password"
+                value = {password}
                 type="password"
                 id="password"
-                autoComplete="current-password"
+                onChange={(e) => setPassword(e.target.value)}
+
               />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              />
+
+              <p style={{ color: "red" }}>{error}</p>
+
               <Button
-                type="submit"
+                type="button"
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
+                onClick={handleAuth}
               >
-                Sign In
+                {formState === 0 ? "Login" : "Register"}
               </Button>
-              <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Forgot password?
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Link href="#" variant="body2">
-                    {"Don't have an account? Sign Up"}
-                  </Link>
-                </Grid>
-              </Grid>
-              <Copyright sx={{ mt: 5 }} />
+
+
             </Box>
           </Box>
         </Grid>
       </Grid>
+      <Snackbar
+        open={open} autoHideDuration={4000} message={message}
+      />
     </ThemeProvider>
   );
 }
