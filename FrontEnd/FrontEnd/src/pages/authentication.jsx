@@ -21,9 +21,9 @@ const defaultTheme = createTheme();
 
 export default function authentication() {
 
-  const [username, setUsername] = React.useState();
-  const [password, setPassword] = React.useState();
-  const [name, setName] = React.useState();
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [name, setName] = React.useState("");
   const [error, setError] = React.useState();
   const [message, setMessage] = React.useState();
   const [formState, setFormState] = React.useState(0);
@@ -34,7 +34,8 @@ export default function authentication() {
   let handleAuth = async () => {
     try {
       if (formState === 0) {
-
+        let result = await handleLogin(username, password);
+        
       }
 
       if (formState === 1) {
