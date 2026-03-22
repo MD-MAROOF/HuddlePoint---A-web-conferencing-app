@@ -17,6 +17,8 @@ const connectToSocket = (server) => {
 
     io.on("connection", () => {
 
+        console.log("Something has connected ");
+
         socket.on("join-call", (path) => {
 
             if (connections[path] === undefined)
