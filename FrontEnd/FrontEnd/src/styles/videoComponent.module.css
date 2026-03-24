@@ -1,0 +1,11 @@
+.meetVideoContainer {
+    position: relative;
+    min-height: 240px;
+}
+
+.meetUserVideo {
+    width: 320px;
+    height: 240px;
+    background: #000;
+    object-fit: cover;
+}

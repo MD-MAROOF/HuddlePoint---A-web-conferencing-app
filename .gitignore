@@ -1,5 +1,25 @@
+# Dependencies
 node_modules/
-.env
 Backend/node_modules/
 FrontEnd/node_modules/
+
+# Environment & API keys (any folder)
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Credentials / secrets (exact names in this repo)
+credentials for db.txt
 Backend/credentials for db.txt
+
+# Keys & certs
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+*.p12
+
+# OS / editor
+.DS_Store
+Thumbs.db
