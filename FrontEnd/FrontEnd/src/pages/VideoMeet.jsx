@@ -1,8 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
 import styles from "../styles/videoComponent.module.css";
+import VideocamIcon from "@mui/icons-material/Videocam";
+import VideocamOffIcon from "@mui/icons-material/VideocamOff";
+import CallEndIcon from "@mui/icons-material/CallEnd";
+import MicIcon from "@mui/icons-material/Mic";
+import MicOffIcon from "@mui/icons-material/MicOff";
+import ScreenShareIcon from "@mui/icons-material/ScreenShare";
+import StopScreenShareIcon from "@mui/icons-material/StopScreenShare";
 
 const server_url = "http://localhost:8000";
 
@@ -15,6 +24,8 @@ const peerConfigConnections = {
 }
 
 export default function VideoMeetComponent() {
+
+    const navigate = useNavigate();
 
     var socketRef = useRef();
     let socketIdRef = useRef();
@@ -38,6 +49,49 @@ export default function VideoMeetComponent() {
     const videoRef = useRef([]);
 
     let [videos, setVideos] = useState([]);
+
+    /** Toolbar UI — toggles track.enabled only (don’t flip `video`/`audio` state or useEffect will re-call getUserMedia). */
+    let [micUiOn, setMicUiOn] = useState(true);
+    let [camUiOn, setCamUiOn] = useState(true);
+
+    const toolbarIconSx = {
+        color: "#1a1a1a",
+        bgcolor: "#ffffff",
+        border: "2px solid rgba(255,255,255,0.9)",
+        boxShadow: "0 4px 14px rgba(0,0,0,0.45)",
+        width: 56,
+        height: 56,
+        "&:hover": { bgcolor: "#f0f0f0" },
+    };
+
+    const toggleMic = () => {
+        const stream = window.localStream;
+        if (!stream?.getAudioTracks().length) return;
+        stream.getAudioTracks().forEach((t) => {
+            t.enabled = !t.enabled;
+        });
+        setMicUiOn(stream.getAudioTracks()[0]?.enabled ?? false);
+    };
+
+    const toggleCamera = () => {
+        const stream = window.localStream;
+        if (!stream?.getVideoTracks().length) return;
+        stream.getVideoTracks().forEach((t) => {
+            t.enabled = !t.enabled;
+        });
+        setCamUiOn(stream.getVideoTracks()[0]?.enabled ?? false);
+    };
+
+    const handleLeaveCall = () => {
+        try {
+            socketRef.current?.disconnect();
+        } catch (e) {
+            console.log(e);
+        }
+        window.localStream?.getTracks().forEach((t) => t.stop());
+        window.localStream = null;
+        navigate("/");
+    };
 
     // if(isChrome() === false){
 
@@ -384,23 +438,90 @@ export default function VideoMeetComponent() {
 
             </div> :
                 <div className={styles.meetVideoContainer}>
-                    <video className={styles.meetUserVideo} ref={localVideoRef} autoPlay muted playsInline> </video>
+                    
 
-                    {videos.map((video) => (
-                        <div key={video.socketId}>
-                            <h2> {video.socketId}</h2>
+                    <div className={styles.buttonContainers}>
+                        <IconButton
+                            size="large"
+                            aria-label={micUiOn ? "Mute microphone" : "Unmute microphone"}
+                            onClick={toggleMic}
+                            sx={toolbarIconSx}
+                        >
+                            {micUiOn ? (
+                                <MicIcon sx={{ fontSize: 28, color: "#1a1a1a" }} />
+                            ) : (
+                                <MicOffIcon sx={{ fontSize: 28, color: "#1a1a1a" }} />
+                            )}
+                        </IconButton>
+                        <IconButton
+                            size="large"
+                            aria-label={camUiOn ? "Turn camera off" : "Turn camera on"}
+                            onClick={toggleCamera}
+                            sx={toolbarIconSx}
+                        >
+                            {camUiOn ? (
+                                <VideocamIcon sx={{ fontSize: 28, color: "#1a1a1a" }} />
+                            ) : (
+                                <VideocamOffIcon sx={{ fontSize: 28, color: "#1a1a1a" }} />
+                            )}
+                        </IconButton>
+                        <IconButton
+                            size="large"
+                            aria-label="Leave call"
+                            onClick={handleLeaveCall}
+                            sx={{
+                                ...toolbarIconSx,
+                                bgcolor: "#c62828",
+                                color: "#fff",
+                                border: "2px solid #e57373",
+                                "&:hover": { bgcolor: "#b71c1c" },
+                            }}
+                        >
+                            <CallEndIcon sx={{ fontSize: 28, color: "#fff" }} />
+                        </IconButton>
+
+
+                        {screenAvailable ? (
+                            <IconButton
+                                size="large"
+                                aria-label={screen ? "Stop sharing" : "Share screen"}
+                                sx={{
+                                    width: 56,
+                                    height: 56,
+                                    color: "#fff",
+                                    bgcolor: "#37474f",
+                                    border: "2px solid rgba(255,255,255,0.35)",
+                                    boxShadow: "0 4px 14px rgba(0,0,0,0.45)",
+                                    "&:hover": { bgcolor: "#455a64" },
+                                }}
+                            >
+                                {screen ? (
+                                    <StopScreenShareIcon sx={{ fontSize: 28, color: "#fff" }} />
+                                ) : (
+                                    <ScreenShareIcon sx={{ fontSize: 28, color: "#fff" }} />
+                                )}
+                            </IconButton>
+                        ) : null}
+                    </div>
+
+
+                    <video className = {styles.meetUserVideo} ref={localVideoRef} autoPlay muted playsInline> </video>
+
+                    {videos.map((remote) => (
+                        <div className={styles.conferenceView} key={remote.socketId}>
+                            <h2> {remote.socketId}</h2>
 
                             <video
-                                data-socket={video.socketId}
-                                ref={ref => {
-                                    if (ref && video.stream) {
-                                        ref.srcObject = video.stream;
-                                        ref.play?.().catch(() => { });
+                                data-socket={remote.socketId}
+                                ref={(ref) => {
+                                    if (ref && remote.stream) {
+                                        ref.srcObject = remote.stream;
+                                        ref.play?.().catch(() => {});
                                     }
                                 }}
                                 autoPlay
                                 playsInline
-                            ></video>
+                            />
                         </div>
                     ))}
 

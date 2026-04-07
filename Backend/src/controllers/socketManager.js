@@ -22,6 +22,9 @@ const connectToSocket = (server) => {
             if (connections[path] === undefined)
                 connections[path] = []
 
+            if (connections[path].includes(socket.id))
+                return;
+
             connections[path].push(socket.id);
             timeOnline[socket.id] = new Date();
 
@@ -65,24 +68,21 @@ const connectToSocket = (server) => {
 
 
         socket.on("disconnect", () => {
-            var diffTime = Math.abs(timeOnline[socket.id] - new Date());
+            delete timeOnline[socket.id];
 
-            var key
-            for (const [k, v] of JSON.parse(JSON.stringify(Object.entries(connections)))) {
-                for (let a = 0; a < v.length; a++) {
-                    key = k
+            for (const roomPath of Object.keys(connections)) {
+                const room = connections[roomPath];
+                const index = room.indexOf(socket.id);
+                if (index === -1) continue;
 
-                    for (let a = 0; a < connections[key].length; ++a) {
-                        io.to(connections[key][a]).emit("user-left", socket.id);
-                    }
+                room.forEach((memberId) => {
+                    io.to(memberId).emit("user-left", socket.id);
+                });
 
-                    var index = connections[key].indexOf(socket.id);
+                room.splice(index, 1);
 
-                    connections[key].splice(index, 1);
-
-                    if (connections[key].length == 0) {
-                        delete connections[key];
-                    }
+                if (room.length === 0) {
+                    delete connections[roomPath];
                 }
             }
         })
