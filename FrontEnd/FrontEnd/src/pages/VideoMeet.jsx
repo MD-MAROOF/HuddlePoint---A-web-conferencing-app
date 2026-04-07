@@ -4,6 +4,7 @@ import { io } from "socket.io-client";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
+import Badge from "@mui/material/Badge";
 import styles from "../styles/videoComponent.module.css";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import VideocamOffIcon from "@mui/icons-material/VideocamOff";
@@ -12,6 +13,7 @@ import MicIcon from "@mui/icons-material/Mic";
 import MicOffIcon from "@mui/icons-material/MicOff";
 import ScreenShareIcon from "@mui/icons-material/ScreenShare";
 import StopScreenShareIcon from "@mui/icons-material/StopScreenShare";
+import ChatIcon from "@mui/icons-material/Chat";
 
 const server_url = "http://localhost:8000";
 
@@ -482,25 +484,32 @@ export default function VideoMeetComponent() {
 
 
                         {screenAvailable ? (
-                            <IconButton
-                                size="large"
-                                aria-label={screen ? "Stop sharing" : "Share screen"}
-                                sx={{
-                                    width: 56,
-                                    height: 56,
-                                    color: "#fff",
-                                    bgcolor: "#37474f",
-                                    border: "2px solid rgba(255,255,255,0.35)",
-                                    boxShadow: "0 4px 14px rgba(0,0,0,0.45)",
-                                    "&:hover": { bgcolor: "#455a64" },
-                                }}
-                            >
-                                {screen ? (
-                                    <StopScreenShareIcon sx={{ fontSize: 28, color: "#fff" }} />
-                                ) : (
-                                    <ScreenShareIcon sx={{ fontSize: 28, color: "#fff" }} />
-                                )}
-                            </IconButton>
+                            <>
+                                <IconButton
+                                    size="large"
+                                    aria-label={screen ? "Stop sharing" : "Share screen"}
+                                    sx={{
+                                        width: 56,
+                                        height: 56,
+                                        color: "#fff",
+                                        bgcolor: "#37474f",
+                                        border: "2px solid rgba(255,255,255,0.35)",
+                                        boxShadow: "0 4px 14px rgba(0,0,0,0.45)",
+                                        "&:hover": { bgcolor: "#455a64" },
+                                    }}
+                                >
+                                    {screen ? (
+                                        <StopScreenShareIcon sx={{ fontSize: 28, color: "#fff" }} />
+                                    ) : (
+                                        <ScreenShareIcon sx={{ fontSize: 28, color: "#fff" }} />
+                                    )}
+                                </IconButton>
+                                <Badge badgeContent={newMessages} color="primary">
+                                    <IconButton size="large" aria-label="Chat" sx={{ color: "#fff" }}>
+                                        <ChatIcon />
+                                    </IconButton>
+                                </Badge>
+                            </>
                         ) : null}
                     </div>
 
