@@ -4,7 +4,7 @@ import dns from "node:dns";
 import { Server } from "socket.io";
 import mongoose from "mongoose";
 import cors from "cors";
-import connectToSocket from "./controllers/socketmanager.js";
+import connectToSocket from "./controllers/socketManager.js";
 import dotenv from "dotenv";
 import userRoutes from "./routes/users.routes.js"
 
